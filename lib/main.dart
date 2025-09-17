@@ -252,6 +252,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final imageSize = (screenWidth < screenHeight ? screenWidth : screenHeight);
+    final textSize = (screenWidth > screenHeight ? screenWidth : screenHeight);
 
     return Scaffold(
       appBar: AppBar(
@@ -263,20 +265,12 @@ class _MyHomePageState extends State<MyHomePage> {
               flex: 1,
               child: Image.asset(
                 'assets/images/021_trade_logo.jpeg',
-                width:
-                    (screenWidth < screenHeight ? screenWidth : screenHeight) *
-                    0.12,
-                height:
-                    (screenWidth < screenHeight ? screenWidth : screenHeight) *
-                    0.06,
+                width: imageSize * 0.12,
+                height: imageSize * 0.06,
                 fit: BoxFit.contain,
               ),
             ),
-            SizedBox(
-              width:
-                  (screenWidth < screenHeight ? screenWidth : screenHeight) *
-                  0.02,
-            ),
+            SizedBox(width: screenWidth * 0.02),
             Flexible(
               flex: 3,
               child: Column(
@@ -296,22 +290,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 trade,
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.roboto(
-                                  fontSize:
-                                      (screenWidth < screenHeight
-                                          ? screenWidth
-                                          : screenHeight) *
-                                      0.025,
+                                  fontSize: textSize * 0.012,
                                 ),
                               ),
                             ),
                             Text(
                               tradeValues[trade]!,
                               style: GoogleFonts.inter(
-                                fontSize:
-                                    (screenWidth < screenHeight
-                                        ? screenWidth
-                                        : screenHeight) *
-                                    0.022,
+                                fontSize: textSize * 0.012,
                                 color: Colors.green,
                               ),
                             ),
@@ -328,11 +314,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.roboto(
                               color: Colors.black,
-                              fontSize:
-                                  (screenWidth < screenHeight
-                                      ? screenWidth
-                                      : screenHeight) *
-                                  0.025,
+                              fontSize: textSize * 0.012,
                             ),
                           ),
                         ),
@@ -344,21 +326,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height:
-                        (screenWidth < screenHeight
-                            ? screenWidth
-                            : screenHeight) *
-                        0.003,
-                  ),
+                  SizedBox(height: imageSize * 0.003),
                   Text(
                     tradeValues[selectedTrade]!,
                     style: GoogleFonts.inter(
-                      fontSize:
-                          (screenWidth < screenHeight
-                              ? screenWidth
-                              : screenHeight) *
-                          0.022,
+                      fontSize: textSize * 0.012,
                       color: Colors.green,
                     ),
                   ),
@@ -368,63 +340,131 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         actions: [
-          Flexible(
-            flex: 2,
-            child: GestureDetector(
-              key: _menuKey,
-              onTap: () => showCustomMenu(),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      selectedMenu,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize:
-                            (screenWidth < screenHeight
-                                ? screenWidth
-                                : screenHeight) *
-                            0.025,
-                      ),
+          MediaQuery.of(context).orientation == Orientation.portrait
+              ? Flexible(
+                  flex: 2,
+                  child: GestureDetector(
+                    key: _menuKey,
+                    onTap: () => showCustomMenu(),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            selectedMenu,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.inter(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: textSize * 0.012,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.black,
+                          size: 18,
+                        ),
+                      ],
                     ),
                   ),
-                  const Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black,
-                    size: 18,
+                )
+              : Row(
+                  children: menuItems.take(3).map((menu) {
+                    bool isSelected = selectedMenu == menu;
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedMenu = menu;
+                        });
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          menu,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+          SizedBox(width: 16),
+          MediaQuery.of(context).orientation == Orientation.portrait
+              ? Container()
+              : PopupMenuButton<String>(
+                  onSelected: (value) {
+                    setState(() {
+                      selectedMenu = value;
+                    });
+                  },
+                  itemBuilder: (context) => portfolioSub.map((sub) {
+                    return PopupMenuItem(value: sub, child: Text(sub));
+                  }).toList(),
+                  child: Row(
+                    children: [
+                      Text(
+                        "PORTFOLIO",
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.black,
+                        size: 18,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            width:
-                (screenWidth < screenHeight ? screenWidth : screenHeight) *
-                0.03,
-          ),
+                ),
+
+          MediaQuery.of(context).orientation == Orientation.portrait
+              ? Container()
+              : PopupMenuButton<String>(
+                  onSelected: (value) {
+                    setState(() {
+                      selectedMenu = value;
+                    });
+                  },
+                  itemBuilder: (context) => fundsSub.map((sub) {
+                    return PopupMenuItem(value: sub, child: Text(sub));
+                  }).toList(),
+                  child: Row(
+                    children: [
+                      Text(
+                        "FUNDS",
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.black,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+          SizedBox(width: screenWidth * 0.03),
           CircleAvatar(
-            radius:
-                (screenWidth < screenHeight ? screenWidth : screenHeight) *
-                0.045,
+            radius: imageSize * 0.045,
             backgroundColor: const Color(0xffE4E4E7),
             child: Text(
               "LK",
               style: GoogleFonts.inter(
                 color: Colors.black,
-                fontSize:
-                    (screenWidth < screenHeight ? screenWidth : screenHeight) *
-                    0.03,
+                fontSize: textSize * 0.03,
               ),
             ),
           ),
-          SizedBox(
-            width:
-                (screenWidth < screenHeight ? screenWidth : screenHeight) *
-                0.02,
-          ),
+          SizedBox(width: screenWidth * 0.02),
         ],
       ),
       body: SingleChildScrollView(
@@ -438,7 +478,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Text(
                   "Open Orders",
                   style: TextStyle(
-                    fontSize: screenWidth * 0.03,
+                    fontSize: textSize * 0.03,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
